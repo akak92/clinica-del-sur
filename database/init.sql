@@ -11,6 +11,9 @@
 
 DROP TABLE IF EXISTS bloqueo_agenda      CASCADE;
 DROP TABLE IF EXISTS horario_base        CASCADE;
+DROP TABLE IF EXISTS receta_medicamento  CASCADE;
+DROP TABLE IF EXISTS receta              CASCADE;
+DROP TABLE IF EXISTS medicamento         CASCADE;
 DROP TABLE IF EXISTS turno_laboratorio   CASCADE;
 DROP TABLE IF EXISTS turno               CASCADE;
 DROP TABLE IF EXISTS ticket              CASCADE;
@@ -164,6 +167,31 @@ CREATE TABLE horario_base (
     )
 );
 
+CREATE TABLE medicamento (
+    id_medicamento   SERIAL       PRIMARY KEY,
+    nombre_comercial VARCHAR(150) NOT NULL,
+    nombre_generico  VARCHAR(150) NOT NULL,
+    presentacion     VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE receta (
+    id_receta      SERIAL    PRIMARY KEY,
+    id_turno       INT       NOT NULL UNIQUE REFERENCES turno(id_turno),
+    fecha_emision  TIMESTAMP NOT NULL DEFAULT NOW(),
+    observaciones  TEXT
+);
+
+CREATE TABLE receta_medicamento (
+    id_receta_medicamento SERIAL       PRIMARY KEY,
+    id_receta             INT          NOT NULL REFERENCES receta(id_receta),
+    id_medicamento        INT          NOT NULL REFERENCES medicamento(id_medicamento),
+    dosis                 VARCHAR(100) NOT NULL,
+    frecuencia            VARCHAR(100) NOT NULL,
+    duracion              VARCHAR(100),
+    indicaciones          TEXT,
+    UNIQUE (id_receta, id_medicamento)
+);
+
 CREATE TABLE bloqueo_agenda (
     id_bloqueo           SERIAL       PRIMARY KEY,
     id_medico            INT          REFERENCES medico(id_medico),
@@ -279,6 +307,22 @@ INSERT INTO estudio_laboratorio (nombre) VALUES
     ('Uroanálisis'),     -- id 2
     ('Coproanálisis'),   -- id 3
     ('Perfil Lipídico'); -- id 4
+
+
+-- ------------------------------------------------------------
+--  MEDICAMENTO
+-- ------------------------------------------------------------
+INSERT INTO medicamento (nombre_comercial, nombre_generico, presentacion) VALUES
+    ('Ibuprofeno Luar',    'Ibuprofeno',           'Comprimidos 400 mg'),      -- id 1
+    ('Tafirol',            'Paracetamol',           'Comprimidos 500 mg'),      -- id 2
+    ('Amoxidal',           'Amoxicilina',           'Cápsulas 500 mg'),         -- id 3
+    ('Losacor',            'Losartán',              'Comprimidos 50 mg'),        -- id 4
+    ('Atenolol Roux',      'Atenolol',              'Comprimidos 50 mg'),        -- id 5
+    ('Omeprazol Cinfa',    'Omeprazol',             'Cápsulas 20 mg'),           -- id 6
+    ('Metformina Sandoz',  'Metformina',            'Comprimidos 500 mg'),       -- id 7
+    ('Aerius',             'Desloratadina',         'Comprimidos 5 mg'),         -- id 8
+    ('Ciprofloxacina MK',  'Ciprofloxacina',        'Comprimidos 500 mg'),       -- id 9
+    ('Diclofenac Sodico',  'Diclofenac sódico',     'Ampollas 75 mg/3 ml');     -- id 10
 
 
 -- ------------------------------------------------------------

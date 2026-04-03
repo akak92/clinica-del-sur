@@ -136,6 +136,30 @@ erDiagram
         INT id_personal_licencia FK "NULL si no deriva de licencia"
     }
 
+    MEDICAMENTO {
+        INT id_medicamento PK
+        VARCHAR(150) nombre_comercial
+        VARCHAR(150) nombre_generico
+        VARCHAR(100) presentacion
+    }
+
+    RECETA {
+        INT id_receta PK
+        INT id_turno FK
+        DATETIME fecha_emision
+        TEXT observaciones
+    }
+
+    RECETA_MEDICAMENTO {
+        INT id_receta_medicamento PK
+        INT id_receta FK
+        INT id_medicamento FK
+        VARCHAR(100) dosis
+        VARCHAR(100) frecuencia
+        VARCHAR(100) duracion
+        TEXT indicaciones
+    }
+
     AREA ||--o{ DEPARTAMENTO : "contiene"
     DEPARTAMENTO ||--o{ PERSONAL : "emplea"
     CARGO ||--o{ PERSONAL : "define"
@@ -154,6 +178,9 @@ erDiagram
     MEDICO ||--o{ HORARIO_BASE : "define disponibilidad"
     MEDICO ||--o{ BLOQUEO_AGENDA : "tiene bloqueo"
     PERSONAL_LICENCIA ||--o{ BLOQUEO_AGENDA : "origina"
+    TURNO ||--o| RECETA : "genera"
+    RECETA ||--o{ RECETA_MEDICAMENTO : "detalla"
+    MEDICAMENTO ||--o{ RECETA_MEDICAMENTO : "incluido en"
 ```
 
 ---
@@ -204,6 +231,15 @@ Registro de licencias asignadas a cada empleado, con sus fechas y estado.
 
 ### `TICKET`
 Tickets de gestión interna creados por el personal y administrados por el Departamento de RRHH. Puede referirse a una queja, solicitud de insumos o de equipamiento. Contiene dos FK a `PERSONAL`: el solicitante y el empleado de RRHH asignado.
+
+### `MEDICAMENTO`
+Catálogo de medicamentos prescribibles. Almacena nombre comercial, nombre genérico y presentación (comprimidos, jarabe, inyectable, etc.).
+
+### `RECETA`
+Receta médica emitida durante un turno formal. Al vincularse al `TURNO` queda trazabilidad completa del médico que la emitió y el paciente que la recibió. Un turno puede generar como máximo una receta.
+
+### `RECETA_MEDICAMENTO`
+Detalle de los medicamentos incluidos en una receta. Cada fila representa un medicamento prescripto con su dosis, frecuencia, duración del tratamiento e indicaciones adicionales.
 
 ### `HORARIO_BASE`
 Define el esquema semanal recurrente de disponibilidad de cada médico o del laboratorio. Indica qué días de la semana trabaja, en qué franja horaria y cuánto dura cada slot de turno. Con esta información el sistema calcula dinámicamente los slots disponibles para cualquier fecha futura sin necesidad de pre-generarlos.
